@@ -73,6 +73,11 @@ static const char *g_szCrosshairAvailColors[] =
 	"Green", "Red", "Blue", "Yellow", "Ltblue"
 };
 
+static const char *g_szCrosshairTypes[5] =
+{
+	"cross", "cross + dot", "circle", "combined", "dot only"
+};
+
 static class CMenuPlayerSetup : public CMenuFramework
 {
 private:
@@ -119,6 +124,7 @@ public:
 	CMenuSpinControl		logoColor;
 	CMenuSpinControl	crosshairSize;
 	CMenuSpinControl	crosshairColor;
+	CMenuSpinControl	crosshairType;
 	CMenuCheckBox	crosshairTranslucent;
 	CMenuCheckBox	extendedMenus;
 
@@ -176,6 +182,47 @@ void CMenuPlayerSetup::CMenuCrosshairPreview::Draw()
 		else l = 10;
 	}
 
+	bool bDrawPoint = false;
+	bool bDrawCircle = false;
+	bool bDrawCross = false;
+
+	switch ((int)uiPlayerSetup.crosshairType.GetCurrentValue())
+	{
+	case 1:
+	{
+		bDrawPoint = true;
+		bDrawCross = true;
+		break;
+	}
+
+	case 2:
+	{
+		bDrawPoint = true;
+		bDrawCircle = true;
+		break;
+	}
+
+	case 3:
+	{
+		bDrawPoint = true;
+		bDrawCircle = true;
+		bDrawCross = true;
+		break;
+	}
+
+	case 4:
+	{
+		bDrawPoint = true;
+		break;
+	}
+
+	default:
+	{
+		bDrawCross = true;
+		break;
+	}
+	}
+
 	l *= ScreenHeight / 768.0f;
 
 	int x = m_scPos.x, // xpos
@@ -193,37 +240,75 @@ void CMenuPlayerSetup::CMenuCrosshairPreview::Draw()
 		// blue
 		b = g_iCrosshairAvailColors[(int)uiPlayerSetup.crosshairColor.GetCurrentValue()+1][2];
 
-	if( uiPlayerSetup.crosshairTranslucent.bChecked )
+	bool additive = uiPlayerSetup.crosshairTranslucent.bChecked;
+
+	if (bDrawCircle)
 	{
-		// verical
-		EngFuncs::PIC_Set(hWhite, r, g, b, a);
-		EngFuncs::PIC_DrawTrans(x + w / 2, y + d,         1, l );
+		int radius = d + (l / 2);
+		int count = radius * 6;
 
-		EngFuncs::PIC_Set(hWhite, r, g, b, a);
-		EngFuncs::PIC_DrawTrans(x + w / 2, y + h / 2 + d, 1, l );
-
-		// horizontal
-		EngFuncs::PIC_Set(hWhite, r, g, b, a);
-		EngFuncs::PIC_DrawTrans(x + d,         y + h / 2, l, 1 );
-
-		EngFuncs::PIC_Set(hWhite, r, g, b, a);
-		EngFuncs::PIC_DrawTrans(x + w / 2 + d, y + h / 2, l, 1 );
+		if (additive)
+		{
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			for (int i = 0; i < count; i++)
+				EngFuncs::PIC_DrawTrans(x + w / 2 + radius * cos(2 * M_PI / count * i), y + h / 2 + radius * sin(2 * M_PI / count * i), 1, 1);
+		}
+		else
+		{
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			for (int i = 0; i < count; i++)
+				EngFuncs::PIC_DrawAdditive(x + w / 2 + radius * cos(2 * M_PI / count * i), y + h / 2 + radius * sin(2 * M_PI / count * i), 1, 1);
+		}
 	}
-	else
+
+	if (bDrawPoint)
 	{
-		// verical
-		EngFuncs::PIC_Set(hWhite, r, g, b, a);
-		EngFuncs::PIC_DrawAdditive(x + w / 2, y + d,         1, l );
+		if (additive)
+		{
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			EngFuncs::PIC_DrawTrans(x + w / 2 - 1, y + h / 2 - 1, 3, 3);
+		}
+		else
+		{
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			EngFuncs::PIC_DrawAdditive(x + w / 2 - 1, y + h / 2 - 1, 3, 3);
+		}
+	}
 
-		EngFuncs::PIC_Set(hWhite, r, g, b, a);
-		EngFuncs::PIC_DrawAdditive(x + w / 2, y + h / 2 + d, 1, l );
+	if (bDrawCross)
+	{
+		if (additive)
+		{
+			// verical
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			EngFuncs::PIC_DrawTrans(x + w / 2, y + d, 1, l);
 
-		// horizontal
-		EngFuncs::PIC_Set(hWhite, r, g, b, a);
-		EngFuncs::PIC_DrawAdditive(x + d,         y + h / 2, l, 1 );
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			EngFuncs::PIC_DrawTrans(x + w / 2, y + h / 2 + d, 1, l);
 
-		EngFuncs::PIC_Set(hWhite, r, g, b, a);
-		EngFuncs::PIC_DrawAdditive(x + w / 2 + d, y + h / 2, l, 1 );
+			// horizontal
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			EngFuncs::PIC_DrawTrans(x + d, y + h / 2, l, 1);
+
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			EngFuncs::PIC_DrawTrans(x + w / 2 + d, y + h / 2, l, 1);
+		}
+		else
+		{
+			// verical
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			EngFuncs::PIC_DrawAdditive(x + w / 2, y + d, 1, l);
+
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			EngFuncs::PIC_DrawAdditive(x + w / 2, y + h / 2 + d, 1, l);
+
+			// horizontal
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			EngFuncs::PIC_DrawAdditive(x + d, y + h / 2, l, 1);
+
+			EngFuncs::PIC_Set(hWhite, r, g, b, a);
+			EngFuncs::PIC_DrawAdditive(x + w / 2 + d, y + h / 2, l, 1);
+		}
 	}
 }
 
@@ -282,6 +367,7 @@ void CMenuPlayerSetup::SetConfig( void )
 			  g_iCrosshairAvailColors[i][2]);
 	EngFuncs::CvarSetString( "cl_crosshair_color", curColor );
 	crosshairSize.WriteCvar();
+	crosshairType.WriteCvar();
 	crosshairTranslucent.WriteCvar();
 	extendedMenus.WriteCvar();
 	WriteNewLogo();
@@ -390,7 +476,7 @@ void CMenuPlayerSetup::_Init( void )
 	name.LinkCvar( "name" );
 	name.SetRect( 320, 260, 256, 36 );
 
-	crosshairView.SetRect( 320, 340, 96, 96 );
+	crosshairView.SetRect( 320, 370, 96, 96 );
 	crosshairView.SetNameAndStatus( "Crosshair preview", "Choose dynamic crosshair" );
 	crosshairView.hWhite = EngFuncs::PIC_Load("*white");
 
@@ -405,11 +491,17 @@ void CMenuPlayerSetup::_Init( void )
 	crosshairColor.SetNameAndStatus( "Crosshair color", "Set crosshair color" );
 	crosshairColor.Setup(&modelColors);
 
-	crosshairTranslucent.SetCoord( 320, 450 );
+	static CStringArrayModel modelTypes(g_szCrosshairTypes, ARRAYSIZE(g_szCrosshairTypes));
+	crosshairType.SetRect(480, 485, 256, 26);
+	crosshairType.SetNameAndStatus("Crosshair type", "Set crosshair type");
+	crosshairType.Setup(&modelTypes);
+	crosshairType.LinkCvar("cl_crosshair_type", CMenuEditable::CVAR_VALUE);
+
+	crosshairTranslucent.SetCoord( 320, 540 );
 	crosshairTranslucent.SetNameAndStatus( "Translucent crosshair", "Set additive render crosshair" );
 	crosshairTranslucent.LinkCvar( "cl_crosshair_translucent" );
 
-	extendedMenus.SetCoord( 320, 500 );
+	extendedMenus.SetCoord( 320, 590 );
 	extendedMenus.SetNameAndStatus( "Extended touch menu", "Force touch menus for radio" );
 	extendedMenus.LinkCvar( "_extended_menus" );
 
@@ -463,6 +555,7 @@ void CMenuPlayerSetup::_Init( void )
 	AddItem( name );
 	AddItem( crosshairSize );
 	AddItem( crosshairColor );
+	AddItem( crosshairType );
 	AddItem( crosshairTranslucent );
 	AddItem( extendedMenus );
 	AddItem( crosshairView );

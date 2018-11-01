@@ -1286,7 +1286,7 @@ void UI_OpenUpdatePage( bool engine, bool preferstore )
 			updateUrl = "GenericUpdatePage";
 #else
 		// TODO: Replace by macro for mainui_cpp modders?
-		updateUrl = "https://github.com/FWGS/xash3d/releases/latest";
+		updateUrl = "https://github.com/MoeMod/CSBTE-Mobile/releases";
 #endif
 	}
 	else

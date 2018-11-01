@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Action.h"
 #include "YesNoMessageBox.h"
 #include "Table.h"
+#include "SpinControl.h"
+#include "StringArrayModel.h"
 
 #define ART_BANNER		"gfx/shell/head_creategame"
 
@@ -66,6 +68,7 @@ public:
 	CMenuField	maxClients;
 	CMenuField	hostName;
 	CMenuField	password;
+	CMenuField  botNum;
 	CMenuCheckBox   nat;
 	CMenuCheckBox	hltv;
 	CMenuCheckBox	dedicatedServer;
@@ -73,6 +76,7 @@ public:
 	// newgame prompt dialog
 	CMenuYesNoMessageBox msgBox;
 
+	CMenuSpinControl  gamemode;
 	CMenuTable        mapsList;
 	CMenuMapListModel mapsListModel;
 
@@ -83,6 +87,14 @@ private:
 };
 
 static CMenuCreateGame	uiCreateGame;
+
+#define MAX_GAMEMODES 6
+static const char *g_szGameModeNames[MAX_GAMEMODES] = {
+	"Original", "DeathMatch", "TeamDeathMatch", "ZombieMod 1", "ZombieMod 2", "ZombieScenario"
+};
+static const char *g_szGameModeCodes[MAX_GAMEMODES] = {
+	"none", "dm", "tdm", "zb1", "zb2", "zbs"
+};
 
 /*
 =================
@@ -125,6 +137,8 @@ void CMenuCreateGame::Begin( CMenuBaseItem *pSelf, void *pExtra )
 	menu->hostName.WriteCvar();
 	menu->hltv.WriteCvar();
 	menu->maxClients.WriteCvar();
+	menu->botNum.WriteCvar();
+	EngFuncs::CvarSetString("mp_gamemode", g_szGameModeCodes[static_cast<size_t>(menu->gamemode.GetCurrentValue())]);
 
 	EngFuncs::PlayBackgroundTrack( NULL, NULL );
 
@@ -236,8 +250,8 @@ void CMenuCreateGame::_Init( void )
 	done->onActivatedClActive = msgBox.MakeOpenEvent();
 
 	mapsList.SetCharSize( QM_SMALLFONT );
-	mapsList.SetupColumn( 0, "Map", 0.5f );
-	mapsList.SetupColumn( 1, "Title", 0.5f );
+	mapsList.SetupColumn( 0, "", 0.5f ); // Map
+	mapsList.SetupColumn( 1, "", 0.5f ); // Title
 	mapsList.SetModel( &mapsListModel );
 
 	hostName.szName = "Server Name:";
@@ -247,6 +261,8 @@ void CMenuCreateGame::_Init( void )
 	maxClients.iMaxLength = 3;
 	maxClients.bNumbersOnly = true;
 	maxClients.szName = "Max Players:";
+	maxClients.LinkCvar("maxplayers");
+	maxClients.UpdateCvar();
 	SET_EVENT_MULTI( maxClients.onChanged,
 	{
 		CMenuField *self = (CMenuField*)pSelf;
@@ -258,7 +274,6 @@ void CMenuCreateGame::_Init( void )
 			self->SetBuffer( "32" );
 	});
 	maxClients.onCvarGet = maxClients.onChanged;
-	maxClients.LinkCvar( "maxplayers" );
 
 	password.szName = "Password:";
 	password.iMaxLength = 16;
@@ -266,14 +281,45 @@ void CMenuCreateGame::_Init( void )
 	password.bHideInput = true;
 	password.LinkCvar( "sv_password" );
 
+	botNum.iMaxLength = 3;
+	botNum.bNumbersOnly = true;
+	botNum.szName = "BOT Quota:";
+	botNum.LinkCvar("bot_quota");
+	botNum.UpdateCvar();
+	botNum.onCvarGet = botNum.onChanged;
+	SET_EVENT_MULTI(botNum.onChanged,
+		{
+			CMenuField *self = (CMenuField*)pSelf;
+			const char *buf = self->GetBuffer();
+			int players = atoi(buf);
+			if (players <= 0)
+				self->SetBuffer("");
+			else if (players > 32)
+				self->SetBuffer("32");
+		});
+	botNum.onCvarGet = botNum.onChanged;
+
 	msgBox.onPositive = Begin;
 	msgBox.SetMessage( "Starting a new game will exit any current game, OK to exit?" );
 	msgBox.Link( this );
+
+	static CStringArrayModel modelGameModes(g_szGameModeNames, ARRAYSIZE(g_szGameModeNames));
+	gamemode.Setup(&modelGameModes);
+	const char *szGameModeCode = EngFuncs::GetCvarString("mp_gamemode");
+	gamemode.SetCurrentValue(0.f);
+	for (int i = 0; i < MAX_GAMEMODES; ++i)
+	{
+		if (stricmp(szGameModeCode, g_szGameModeCodes[i]))
+			continue;
+		uiCreateGame.gamemode.SetCurrentValue(static_cast<float>(i));
+		break;
+	}
 
 	AddButton( "Cancel", "Return to the previous menu", PC_CANCEL, VoidCb( &CMenuCreateGame::Hide ) );
 	AddItem( maxClients );
 	AddItem( hostName );
 	AddItem( password );
+	AddItem( botNum );
 #if defined(__ANDROID__) || TARGET_OS_IPHONE || defined(__SAILFISH__)
 	AddItem( dedicatedServer );
 #endif
@@ -281,6 +327,7 @@ void CMenuCreateGame::_Init( void )
 	//AddItem( hltv );
 	AddItem( nat );
 	AddItem( mapsList );
+	AddItem( gamemode );
 }
 
 void CMenuCreateGame::_VidInit()
@@ -293,11 +340,13 @@ void CMenuCreateGame::_VidInit()
 	hltv.SetCoord( 72, 635 );
 	dedicatedServer.SetCoord( 72, 685 );
 
+	gamemode.SetRect( 590, 215, -20, 26 );
 	mapsList.SetRect( 590, 230, -20, 465 );
 
 	hostName.SetRect( 350, 260, 205, 32 );
 	maxClients.SetRect( 350, 360, 205, 32 );
 	password.SetRect( 350, 460, 205, 32 );
+	botNum.SetRect(350, 560, 205, 32);
 }
 
 void CMenuCreateGame::Reload( void )

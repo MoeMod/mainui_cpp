@@ -62,11 +62,9 @@ private:
 	CMenuPicButton	resumeGame;
 	CMenuPicButton	disconnect;
 	CMenuPicButton	credits;
-	CMenuPicButton	hazardCourse;
+	CMenuPicButton	createGame;
 	CMenuPicButton	configuration;
-	CMenuPicButton	saveRestore;
 	CMenuPicButton	multiPlayer;
-	CMenuPicButton	customGame;
 	CMenuPicButton	previews;
 	CMenuPicButton	quit;
 
@@ -174,6 +172,7 @@ const char *CMenuMain::Activate( void )
 	if( gpGlobals->developer )
 	{
 		console.pos.y = CL_IsActive() ? 130 : 230;
+		console.pos.y += 50;
 	}
 
 	CMenuPicButton::ClearButtonStack();
@@ -205,13 +204,8 @@ void CMenuMain::HazardCourseCb()
 
 void CMenuMain::_Init( void )
 {
-	if( gMenu.m_gameinfo.trainmap[0] && stricmp( gMenu.m_gameinfo.trainmap, gMenu.m_gameinfo.startmap ) != 0 )
-		bTrainMap = true;
-	else bTrainMap = false;
-
-	if( EngFuncs::GetCvarFloat( "host_allow_changegame" ))
-		bCustomGame = true;
-	else bCustomGame = false;
+	bTrainMap = false;
+	bCustomGame = false;
 
 	// console
 	console.SetNameAndStatus( "Console", "Show console" );
@@ -233,16 +227,15 @@ void CMenuMain::_Init( void )
 	disconnect.iFlags |= QMF_NOTIFY;
 	disconnect.onActivated = VoidCb( &CMenuMain::DisconnectDialogCb );
 
-	credits.SetNameAndStatus( "Credits", MenuStrings[IDS_MAIN_NEWGAMEHELP] );
+	credits.SetNameAndStatus( "Credits", MenuStrings[IDS_MAIN_READMEHELP] );
 	credits.SetPicture( PC_VIEW_README );
 	credits.iFlags |= QMF_NOTIFY;
 	credits.onActivated = UI_Credits_Menu;
 
-	hazardCourse.SetNameAndStatus( "Hazard Course", MenuStrings[IDS_MAIN_TRAININGHELP] );
-	hazardCourse.SetPicture( PC_HAZARD_COURSE );
-	hazardCourse.iFlags |= QMF_NOTIFY;
-	hazardCourse.onActivatedClActive = VoidCb( &CMenuMain::HazardCourseDialogCb );
-	hazardCourse.onActivated = VoidCb( &CMenuMain::HazardCourseCb );
+	createGame.SetNameAndStatus( "Create Game", MenuStrings[IDS_MAIN_NEWGAMEHELP] );
+	createGame.SetPicture(PC_CREATE_GAME);
+	createGame.iFlags |= QMF_NOTIFY;
+	createGame.onActivated = UI_CreateGame_Menu;
 
 	multiPlayer.SetNameAndStatus( "Multiplayer", MenuStrings[IDS_MAIN_MULTIPLAYERHELP] );
 	multiPlayer.SetPicture( PC_MULTIPLAYER );
@@ -253,15 +246,6 @@ void CMenuMain::_Init( void )
 	configuration.SetPicture( PC_CONFIG );
 	configuration.iFlags |= QMF_NOTIFY;
 	configuration.onActivated = UI_Options_Menu;
-
-	saveRestore.iFlags |= QMF_NOTIFY;
-	saveRestore.onActivatedClActive = UI_SaveLoad_Menu;
-	saveRestore.onActivated = UI_LoadGame_Menu;
-
-	customGame.SetNameAndStatus( "Custom Game", MenuStrings[IDS_MAIN_CUSTOMHELP] );
-	customGame.SetPicture( PC_CUSTOM_GAME );
-	customGame.iFlags |= QMF_NOTIFY;
-	customGame.onActivated = UI_CustomGame_Menu;
 
 	previews.SetNameAndStatus( "Previews", MenuStrings[ IDS_MAIN_PREVIEWSHELP ] );
 	previews.SetPicture( PC_PREVIEWS );
@@ -289,17 +273,9 @@ void CMenuMain::_Init( void )
 	if ( gMenu.m_gameinfo.gamemode == GAME_SINGLEPLAYER_ONLY )
 		multiPlayer.SetGrayed( true );
 
-	if ( gMenu.m_gameinfo.gamemode == GAME_MULTIPLAYER_ONLY )
-	{
-		saveRestore.SetGrayed( true );
-		hazardCourse.SetGrayed( true );
-	}
-
 	// server.dll needs for reading savefiles or startup newgame
 	if( !EngFuncs::CheckGameDll( ))
 	{
-		saveRestore.SetGrayed( true );
-		hazardCourse.SetGrayed( true );
 		credits.SetGrayed( true );
 	}
 
@@ -313,17 +289,11 @@ void CMenuMain::_Init( void )
 
 	AddItem( disconnect );
 	AddItem( resumeGame );
-	AddItem( credits );
+	//AddItem( credits );
 
-	if ( bTrainMap )
-		AddItem( hazardCourse );
-
-	AddItem( saveRestore );
+	AddItem( createGame );
 	AddItem( configuration );
 	AddItem( multiPlayer );
-
-	if ( bCustomGame )
-		AddItem( customGame );
 
 	AddItem( previews );
 	AddItem( quit );
@@ -341,27 +311,13 @@ void CMenuMain::_VidInit( void )
 	Activate();
 
 	console.pos.x = 72;
-	resumeGame.SetCoord( 72, 230 );
-	disconnect.SetCoord( 72, 180 );
-	credits.SetCoord( 72, 280 );
-	hazardCourse.SetCoord( 72, 330 );
+	resumeGame.SetCoord( 72, 230);
+	disconnect.SetCoord( 72, 280);
+	//credits.SetCoord( 72, 280 );
+	createGame.SetCoord( 72, 330 );
 
-	if( CL_IsActive( ))
-	{
-		saveRestore.SetNameAndStatus( "Save\\Load Game", MenuStrings[IDS_MAIN_LOADSAVEHELP] );
-		saveRestore.SetPicture( PC_SAVE_LOAD_GAME );
-	}
-	else
-	{
-		saveRestore.SetNameAndStatus( "Load Game", MenuStrings[IDS_MAIN_LOADHELP] );
-		saveRestore.SetPicture( PC_LOAD_GAME );
-	}
-
-	saveRestore.SetCoord( 72, bTrainMap ? 380 : 330 );
 	configuration.SetCoord( 72, bTrainMap ? 430 : 380 );
 	multiPlayer.SetCoord( 72, bTrainMap ? 480 : 430 );
-
-	customGame.SetCoord( 72, bTrainMap ? 530 : 480 );
 
 	previews.SetCoord( 72, (bCustomGame) ? (bTrainMap ? 580 : 530) : (bTrainMap ? 530 : 480) );
 
