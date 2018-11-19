@@ -23,15 +23,12 @@
 cmake_minimum_required(VERSION  2.8.0)
 project (MAINUI)
 
-include(FWGSLib)
-
 # By default we require C++11 support.
 # But it can be overriden with -DMY_COMPILER_SUCKS compiler option
 # It's not recommended and may not work(as it's done only for MSVC6 support)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 set(MAINUI_LIBRARY xashmenu)
-fwgs_fix_default_msvc_settings()
 option(MAINUI_USE_CUSTOM_FONT_RENDER "Use custom font rendering" ON)
 option(MAINUI_USE_STB "Use stb_truetype.h for rendering(*nix-only)" OFF)
 option(MAINUI_RENDER_PICBUTTON_TEXT "Use custom font render to render picbuttons(experimental)" OFF)
@@ -132,14 +129,6 @@ list(APPEND MAINUI_SOURCES ${MAINUI_MENUS_SOURCES})
 list(APPEND MAINUI_SOURCES ${MAINUI_FONT_RENDER_SOURCES})
 add_library (${MAINUI_LIBRARY} SHARED ${MAINUI_SOURCES})
 
-if(NOT WIN32 AND NOT MINGW)
-	fwgs_add_compile_options(C -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable)
-else()
-
-	# Only for MSVC6 compatibility mode! Newer VC does fail with this define
-	# add_definitions(-DMY_COMPILER_SUCKS)
-endif()
-
 if(NOT XASH_SDK)
 	set(XASH_SDK "../")
 endif()
@@ -204,6 +193,3 @@ if(XASH_64BIT)
 	set_target_properties(${MAINUI_LIBRARY} PROPERTIES 
 		OUTPUT_NAME ${MAINUI_NAME}64)
 endif()
-
-fwgs_set_default_properties(${MAINUI_LIBRARY})
-fwgs_install(${MAINUI_LIBRARY})
