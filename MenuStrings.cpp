@@ -73,9 +73,9 @@ EMPTY_STRINGS_2, // 246..247
 EMPTY_STRINGS_2, // 248..249
 EMPTY_STRINGS_100, // 250..349
 EMPTY_STRINGS_50, // 350..399
-"Find more about CSBTE on Baidu csoldjb bar",	// 400
+"Find more about CSMoE",	// 400
 EMPTY_STRINGS_1, // 401
-"https://tieba.baidu.com/f?kw=csoldjb", // 402
+"https://github.com/MoeMod/CSMoE", // 402
 EMPTY_STRINGS_5, // 403..407
 EMPTY_STRINGS_2, // 408..409
 EMPTY_STRINGS_100, // 410..509
