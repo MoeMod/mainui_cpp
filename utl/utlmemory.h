@@ -24,7 +24,7 @@ template <class T>
 void *operator new(size_t count, T *ptr) {
 return ptr;
 }
-#elif defined _WIN32
+#elif defined(_WIN32) && !defined(__MINGW32__)
 #include <new.h>
 #else
 #include "new"
