@@ -90,10 +90,10 @@ static CMenuCreateGame	uiCreateGame;
 
 #define MAX_GAMEMODES 6
 static const char *g_szGameModeNames[MAX_GAMEMODES] = {
-	"Original", "DeathMatch", "TeamDeathMatch", "ZombieMod 1", "ZombieMod 2", "ZombieScenario"
+	"Original", "DeathMatch", "TeamDeathMatch", "ZombieMod 1", "ZombieMod 3", "ZombieScenario"
 };
 static const char *g_szGameModeCodes[MAX_GAMEMODES] = {
-	"none", "dm", "tdm", "zb1", "zb2", "zbs"
+	"none", "dm", "tdm", "zb1", "zb3", "zbs"
 };
 
 /*
