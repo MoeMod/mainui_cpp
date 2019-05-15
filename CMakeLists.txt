@@ -180,17 +180,20 @@ endif()
 if(MAINUI_NAME)
 	set_target_properties(${MAINUI_LIBRARY} PROPERTIES
 		OUTPUT_NAME ${MAINUI_NAME})
+elseif(ANDROID OR IOS)
+	set_target_properties(${MAINUI_LIBRARY} PROPERTIES
+		OUTPUT_NAME "menu")
 elseif(WIN32)
 	set_target_properties(${MAINUI_LIBRARY} PROPERTIES
 		OUTPUT_NAME menu PREFIX "")
 endif()
 
-if(XASH_64BIT)
+if(XASH_64BIT AND NOT ANDROID AND NOT IOS)
 	get_target_property(MAINUI_NAME ${MAINUI_LIBRARY} OUTPUT_NAME)
 	if(NOT MAINUI_NAME)
 		set(MAINUI_NAME ${MAINUI_LIBRARY})
 	endif()
-	set_target_properties(${MAINUI_LIBRARY} PROPERTIES 
+	set_target_properties(${MAINUI_LIBRARY} PROPERTIES
 		OUTPUT_NAME ${MAINUI_NAME}64)
 endif()
 
