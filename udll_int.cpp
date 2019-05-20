@@ -22,7 +22,12 @@ ui_enginefuncs_t EngFuncs::engfuncs;
 #ifndef XASH_DISABLE_FWGS_EXTENSIONS
 ui_textfuncs_t	EngFuncs::textfuncs;
 #endif
+
+namespace ui
+{
 ui_globalvars_t	*gpGlobals;
+}
+
 CMenu gMenu;
 
 static UI_FUNCTIONS gFunctionTable = 

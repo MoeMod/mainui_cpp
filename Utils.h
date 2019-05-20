@@ -44,7 +44,11 @@ void DBG_AssertFunction( bool fExpr, const char* szExpr, const char* szFile, int
 #define ASSERTSZ( f, sz )
 #endif
 
+namespace ui
+{
 extern ui_globalvars_t		*gpGlobals;
+}
+using ui::gpGlobals;
 
 // exports
 extern int UI_VidInit( void );
