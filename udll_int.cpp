@@ -80,3 +80,24 @@ extern "C" EXPORT int GiveTextAPI( ui_textfuncs_t* pTextfuncsFromEngine )
 	return TRUE;
 }
 #endif
+
+#ifdef XASH_STATIC_GAMELIB
+typedef struct dllexport_s
+{
+const char *name;
+void *func;
+} dllexport_t;
+
+static dllexport_t switch_mainui_exports[] = {
+	{ "GetMenuAPI", (void*)GetMenuAPI },
+	{ "GiveTextAPI", (void*)GiveTextAPI },
+	{ NULL, NULL }
+};
+
+extern "C" int dll_register( const char *name, dllexport_t *exports );
+
+extern "C" int switch_installdll_mainui( void )
+{
+	return dll_register( "menu", switch_mainui_exports );
+}
+#endif

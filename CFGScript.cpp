@@ -22,7 +22,7 @@ GNU General Public License for more details.
 #define CVAR_USERINFO BIT(1)
 
 
-const char *cvartypes[] = { NULL, "BOOL" , "NUMBER", "LIST", "STRING" };
+static const char *cvartypes[] = { NULL, "BOOL" , "NUMBER", "LIST", "STRING" };
 
 struct parserstate_t
 {
