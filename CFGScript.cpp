@@ -270,7 +270,7 @@ scrvardef_t *CSCR_LoadDefaultCVars( const char *scriptfilename, int *count )
 	char *start;
 	parserstate_t state;
 	bool success = false;
-	scrvardef_t *list = 0, *last;
+	scrvardef_t *list = nullptr, *last = nullptr;
 
 	*count = 0;
 

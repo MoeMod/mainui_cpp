@@ -515,7 +515,7 @@ UI_DrawMouseCursor
 */
 void UI_DrawMouseCursor( void )
 {	
-#ifdef _WIN32
+#if defined(_WIN32) && (!defined(WINAPI_FAMILY) || !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_APP))
 	CMenuBaseItem	*item;
 	HICON		hCursor = NULL;
 	int		i;
@@ -655,7 +655,7 @@ void windowStack_t::Update( )
 		}
 	}
 
-	con_nprint_t con;
+	con_nprint_t con = {};
 	con.time_to_live = 0.1f;
 
 	if( ui_show_window_stack && ui_show_window_stack->value )
