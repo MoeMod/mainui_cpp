@@ -521,7 +521,7 @@ UI_DrawMouseCursor
 */
 void UI_DrawMouseCursor( void )
 {	
-#ifndef XASH_WINRT
+#if defined(_WIN32) && !defined(XASH_WINRT)
 	CMenuBaseItem	*item;
 	HICON		hCursor = NULL;
 	int		i;
