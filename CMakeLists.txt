@@ -21,12 +21,7 @@
 #
 
 cmake_minimum_required(VERSION  2.8.0)
-
-if(XASH_PCH)
-	project (MAINUI CXX CXXPCH)
-else()
-	project (MAINUI)
-endif()
+project (MAINUI)
 
 # By default we require C++11 support.
 # But it can be overriden with -DMY_COMPILER_SUCKS compiler option
@@ -209,13 +204,4 @@ endif()
 
 if(NOT XASH_STATIC_GAMELIB)
 	install( TARGETS ${MAINUI_LIBRARY} DESTINATION ${CMAKE_INSTALL_PREFIX}/csmoe/cl_dlls )
-endif()
-
-if(XASH_PCH)
-	target_precompiled_header(${MAINUI_LIBRARY} stdafx.h)
-	set_target_properties(${MAINUI_LIBRARY} PROPERTIES
-			CXX_STANDARD ${CMAKE_CXX_STANDARD}
-			CXX_STANDARD_REQUIRED YES
-			CXX_EXTENSIONS NO
-			)
 endif()
