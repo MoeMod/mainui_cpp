@@ -306,7 +306,7 @@ int UI_DrawString( HFont font, int x, int y, int w, int h,
 	int r, g, b, a; UnpackRGBA(r, g, b, a, color);
     ImColor col(r,g,b,a);
     ImDrawList* drawlist = ImGui::GetBackgroundDrawList();
-    auto shadow_col = ImColor(col.Value.x * 0.55, col.Value.y * 0.34, col.Value.z * 0.11, col.Value.w);
+    auto shadow_col = ImColor(0, 0, 0, a);
     auto shadow_col2 = ImColor(0.f, 0.f, 0.f, col.Value.w);
     int ww = (flags & ETF_NOSIZELIMIT) ? 0 : w;
     int xx = x;
@@ -339,13 +339,15 @@ int UI_DrawString( HFont font, int x, int y, int w, int h,
     }
     if( flags & ETF_SHADOW )
     {
-        drawlist->AddText(nullptr, charH, ImVec2(xx - 1, yy - 1), shadow_col, string, nullptr, ww);
-        drawlist->AddText(nullptr, charH, ImVec2(xx - 1, yy + 1), shadow_col, string, nullptr, ww);
-        drawlist->AddText(nullptr, charH, ImVec2(xx + 1, yy - 1), shadow_col, string, nullptr, ww);
-        drawlist->AddText(nullptr, charH, ImVec2(xx + 1, yy + 1), shadow_col, string, nullptr, ww);
-        drawlist->AddText(nullptr, charH, ImVec2(xx + 2, yy + 2), shadow_col2, string, nullptr, ww);
+    	int shadow_offset = max(charH / 16, 1);
+        //drawlist->AddText(nullptr, charH, ImVec2(xx - 1 * shadow_offset, yy - 1 * shadow_offset), shadow_col, string, nullptr, ww);
+        //drawlist->AddText(nullptr, charH, ImVec2(xx - 1 * shadow_offset, yy + 1 * shadow_offset), shadow_col, string, nullptr, ww);
+        //drawlist->AddText(nullptr, charH, ImVec2(xx + 1 * shadow_offset, yy - 1 * shadow_offset), shadow_col, string, nullptr, ww);
+        //drawlist->AddText(nullptr, charH, ImVec2(xx + 1 * shadow_offset, yy + 1 * shadow_offset), shadow_col, string, nullptr, ww);
+        drawlist->AddText(nullptr, charH, ImVec2(xx + 2 * shadow_offset, yy + 2 * shadow_offset), shadow_col2, string, nullptr, ww);
     }
     drawlist->AddText(nullptr, charH, ImVec2(xx, yy), col, string, nullptr, ww);
+    return textSize.x;
 #else
 	uint	modulate, shadowModulate = 0;
 	int	xx = 0, yy, ofsX = 0, ofsY = 0, ch;
