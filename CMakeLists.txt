@@ -124,6 +124,10 @@ if(CS16CLIENT)
 		)
 endif()
 
+if(XASH_IMGUI)
+	add_definitions(-DXASH_IMGUI)
+endif()
+
 list(APPEND MAINUI_SOURCES ${MAINUI_CONTROLS_SOURCES})
 list(APPEND MAINUI_SOURCES ${MAINUI_MENUS_SOURCES})
 list(APPEND MAINUI_SOURCES ${MAINUI_FONT_RENDER_SOURCES})
@@ -132,6 +136,10 @@ if(XASH_STATIC_GAMELIB)
 	add_library (${MAINUI_LIBRARY} STATIC ${MAINUI_SOURCES})
 else()
 	add_library (${MAINUI_LIBRARY} SHARED ${MAINUI_SOURCES})
+endif()
+
+if(XASH_IMGUI)
+	target_link_libraries(${MAINUI_LIBRARY} imgui imgui_ext)
 endif()
 
 if(NOT XASH_SDK)

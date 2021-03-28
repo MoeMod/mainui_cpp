@@ -45,6 +45,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 #endif
 
+#ifdef XASH_IMGUI
+#include "imgui.h"
+#include "imgui_utils.h"
+#endif
+
 cvar_t		*ui_showmodels;
 cvar_t		*ui_show_window_stack;
 cvar_t		*ui_borderclip;
@@ -297,6 +302,51 @@ int UI_DrawString( HFont font, int x, int y, int w, int h,
 		const char *string, const unsigned int color,
 		int charH, uint justify, uint flags )
 {
+#ifdef XASH_IMGUI
+	int r, g, b, a; UnpackRGBA(r, g, b, a, color);
+    ImColor col(r,g,b,a);
+    ImDrawList* drawlist = ImGui::GetBackgroundDrawList();
+    auto shadow_col = ImColor(col.Value.x * 0.55, col.Value.y * 0.34, col.Value.z * 0.11, col.Value.w);
+    auto shadow_col2 = ImColor(0.f, 0.f, 0.f, col.Value.w);
+    int ww = (flags & ETF_NOSIZELIMIT) ? 0 : w;
+    int xx = x;
+    ImFont* imfont = ImGui::GetDrawListSharedData()->Font;
+    ImVec2 textSize = imfont->CalcTextSizeA(charH, FLT_MAX, ww, string, nullptr, nullptr);
+    if( justify & QM_LEFT  )
+    {
+        xx = x;
+    }
+    else if( justify & QM_RIGHT )
+    {
+        xx = x + (w - textSize.x);
+    }
+    else // QM_LEFT
+    {
+        xx = x + (w - textSize.x) / 2.0f;
+    }
+    int yy = y;
+    if( justify & QM_TOP )
+    {
+        yy = y;
+    }
+    else if( justify & QM_BOTTOM )
+    {
+        yy = y + (h - textSize.y);
+    }
+    else
+    {
+        yy = y + (h - textSize.y)/2;
+    }
+    if( flags & ETF_SHADOW )
+    {
+        drawlist->AddText(nullptr, charH, ImVec2(xx - 1, yy - 1), shadow_col, string, nullptr, ww);
+        drawlist->AddText(nullptr, charH, ImVec2(xx - 1, yy + 1), shadow_col, string, nullptr, ww);
+        drawlist->AddText(nullptr, charH, ImVec2(xx + 1, yy - 1), shadow_col, string, nullptr, ww);
+        drawlist->AddText(nullptr, charH, ImVec2(xx + 1, yy + 1), shadow_col, string, nullptr, ww);
+        drawlist->AddText(nullptr, charH, ImVec2(xx + 2, yy + 2), shadow_col2, string, nullptr, ww);
+    }
+    drawlist->AddText(nullptr, charH, ImVec2(xx, yy), col, string, nullptr, ww);
+#else
 	uint	modulate, shadowModulate = 0;
 	int	xx = 0, yy, ofsX = 0, ofsY = 0, ch;
 	int maxX = x;
@@ -508,6 +558,7 @@ int UI_DrawString( HFont font, int x, int y, int w, int h,
 	EngFuncs::UtfProcessChar( 0 );
 
 	return maxX;
+#endif
 }
 
 #ifdef _WIN32
