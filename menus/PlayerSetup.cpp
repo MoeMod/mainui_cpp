@@ -26,8 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "Field.h"
 #include "SpinControl.h"
 #include "YesNoMessageBox.h"
-#include "PlayerModelView.h"
 #include "StringArrayModel.h"
+#include "angledef.h"
 
 #define ART_BANNER		"gfx/shell/head_customize"
 

@@ -23,15 +23,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "BaseMenu.h"
 #include "Utils.h"
 #include "BtnsBMPTable.h"
+#include "port.h"
 #include <string.h>
 
 #define ART_BUTTONS_MAIN		"gfx/shell/btns_main.bmp"	// we support bmp only
 
-typedef unsigned char	BYTE;
-typedef short int	    WORD;
-typedef unsigned int    DWORD;
-typedef int				LONG;
-
+#if _WIN32
+#include "wingdi.h"
+#else
 #pragma pack(push, 1)
 typedef struct tagBITMAPFILEHEADER {
   WORD  bfType;
@@ -62,6 +61,8 @@ typedef struct tagRGBQUAD {
   BYTE rgbReserved;
 } RGBQUAD;
 #pragma pack(pop)
+#endif
+
 /*
 =================
 UI_LoadBmpButtons
